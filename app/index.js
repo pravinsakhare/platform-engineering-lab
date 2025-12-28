@@ -4,29 +4,129 @@ const os = require("os");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const APP_NAME = "Platform Engineering Lab";
+const VERSION = "v1.0.0";
+
+/**
+ * Home page (minimal UI)
+ */
 app.get("/", (req, res) => {
   res.send(`
-    <h2>Platform Engineering Lab 🚀</h2>
-    <p>Status: Healthy</p>
-    <p>Version: v1.0.0</p>
-    <p>Environment: local</p>
-    <p>Pod Name: ${os.hostname()}</p>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>${APP_NAME}</title>
+      <style>
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+          background: #0f172a;
+          color: #e5e7eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+        }
+        .card {
+          background: #020617;
+          border: 1px solid #1e293b;
+          border-radius: 12px;
+          padding: 24px 28px;
+          width: 360px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        h1 {
+          font-size: 20px;
+          margin-bottom: 12px;
+          color: #38bdf8;
+        }
+        .item {
+          margin: 6px 0;
+          font-size: 14px;
+          display: flex;
+          justify-content: space-between;
+        }
+        .label {
+          color: #94a3b8;
+        }
+        .value {
+          font-weight: 500;
+        }
+        footer {
+          margin-top: 16px;
+          font-size: 12px;
+          color: #64748b;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>${APP_NAME}</h1>
+
+        <div class="item">
+          <span class="label">Status</span>
+          <span class="value">Healthy</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Version</span>
+          <span class="value">${VERSION}</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Environment</span>
+          <span class="value">${process.env.NODE_ENV || "local"}</span>
+        </div>
+
+        <div class="item">
+          <span class="label">Pod</span>
+          <span class="value">${os.hostname()}</span>
+        </div>
+
+        <footer>
+          Kubernetes · HPA · Probes · CI/CD Ready
+        </footer>
+      </div>
+    </body>
+    </html>
   `);
 });
 
+/**
+ * Health endpoint for Kubernetes probes
+ */
 app.get("/health", (req, res) => {
-  res.status(200).send("OK");
+  res.status(200).json({ status: "healthy" });
 });
 
-app.get("/info", (req, res) => {
-  res.json({
-    status: "healthy",
-    version: "v1.0.0",
-    environment: "local",
-    hostname: os.hostname(),
-  });
+/**
+ * Load endpoint for HPA testing
+ */
+app.get("/load", (req, res) => {
+  const start = Date.now();
+  while (Date.now() - start < 500) {
+    Math.random() * Math.random();
+  }
+  res.json({ message: "CPU load generated" });
+});
+
+/**
+ * Graceful shutdown
+ */
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Shutting down gracefully.");
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  console.log("SIGINT received. Shutting down gracefully.");
+  process.exit(0);
 });
 
 app.listen(PORT, () => {
-  console.log(`App running on port ${PORT}`);
+  console.log(`${APP_NAME} running on port ${PORT}`);
 });
