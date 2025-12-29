@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: node-app
-          image: pravinsakharkar/node-app:latest
+          image: pravinsakharkar }/node-app:eb6e828e4750927e2b0b3ba389391a7e1c469405
 
           imagePullPolicy: IfNotPresent
           ports:
