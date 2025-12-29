@@ -27,3 +27,14 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/node-app:latest
             ${{ secrets.DOCKER_USERNAME }}/node-app:${{ github.sha }}
+      - name: Update Kubernetes manifest with new image
+        run: |
+          sed -i "s|image: .*|image: ${{ secrets.DOCKER_USERNAME}} }/node-app:${{ github.sha }}|" k8s/node-app/deployment.yaml
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add k8s/node-app/deployment.yaml
+          git commit -m "chore: deploy image ${{ github.sha }} to Kubernetes"
+          git push
+          
