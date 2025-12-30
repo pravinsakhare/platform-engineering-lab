@@ -4,8 +4,10 @@ const os = require("os");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const APP_NAME = "Platform Engineering Lab";
-const VERSION = "v1.0.0";
+const APP_NAME = process.env.APP_NAME || "Platform Engineering Lab";
+const APP_ENV = process.env.APP_ENV || "local";
+const VERSION = process.env.APP_VERSION || "v1.0.0";
+
 
 /**
  * Home page (minimal UI)
@@ -79,7 +81,7 @@ app.get("/", (req, res) => {
 
         <div class="item">
           <span class="label">Environment</span>
-          <span class="value">${process.env.NODE_ENV || "local"}</span>
+          <span class="value">${APP_ENV}</span>
         </div>
 
         <div class="item">
